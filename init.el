@@ -44,13 +44,14 @@ values."
                       :disabled-for org markdown)
 	 (gtags :variables gtags-enable-by-default t)
      restclient
-     latex
+     (latex :variables latex-enable-auto-fill t)
      deft
      react
      html
      javascript
      ranger
-     colors
+     (colors :variables
+			 colors-enable-nyan-cat-progress-bar t)
      prodigy
      search-engine
      better-defaults
@@ -58,20 +59,24 @@ values."
      git
      markdown
      org
-     (shell :variables
+	 yaml
+	 sql
+	 semantic
+	 (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      version-control
      (c-c++ :variables
-             c-c++-default-mode-for-headers 'c++-mode)
+			c-c++-default-mode-for-headers 'c++-mode c-c++-enable-clang-support t)
+	 docker
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(youdao-dictionary irony)
+   dotspacemacs-additional-packages '(youdao-dictionary editorconfig)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -373,7 +378,6 @@ you should place your code here."
 
   (setq powerline-default-separator 'arrow)
   (global-hungry-delete-mode t)
-  (global-set-key (kbd "C-v") 'yank)
   (setq url-automatic-caching t)
   (global-set-key (kbd "C-c y") 'youdao-dictionary-search-at-point)
   (global-set-key (kbd "C-c j") 'beautify-json)
@@ -381,11 +385,8 @@ you should place your code here."
   (setq-default indent-tabs-mode t)
   (setq-default default-tab-width 4)
   (custom-set-variables '(c-basic-offset 4))
-
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'cc-mode-hook 'irony-mode)
-  (add-hook 'c-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+  (turn-on-fci-mode)
+  (setq-default frame-title-format '("%f [%m]"))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -404,7 +405,7 @@ This function is called at the very end of Spacemacs initialization."
  '(clang-format-style "WebKit")
  '(package-selected-packages
    (quote
-    (irony ggtags names chinese-word-at-point xterm-color web-mode web-beautify tagedit slim-mode shell-pop scss-mode sass-mode ranger rainbow-mode rainbow-identifiers pug-mode prodigy ob-restclient ob-http multi-term livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc haml-mode eshell-z eshell-prompt-extras esh-help engine-mode emmet-mode deft company-web web-completion-data company-tern dash-functional tern company-restclient restclient know-your-http-well company-auctex color-identifiers-mode coffee-mode auctex-latexmk auctex realgud test-simple loc-changes load-relative git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter disaster diff-hl company-c-headers cmake-mode clang-format browse-at-remote unfill smeargle orgit org-projectile org-present org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flyspell-correct-ivy flyspell-correct flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor company-statistics company auto-yasnippet yasnippet auto-dictionary ac-ispell auto-complete ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-purpose window-purpose imenu-list ivy-hydra info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump diminish define-word counsel-projectile column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile async aggressive-indent adaptive-wrap ace-window ace-link youdao-dictionary))))
+    (dockerfile-mode docker tablist docker-tramp impatient-mode stickyfunc-enhance srefactor yaml-mode sql-indent org-brain nyan-mode company-irony irony ggtags names chinese-word-at-point xterm-color web-mode web-beautify tagedit slim-mode shell-pop scss-mode sass-mode ranger rainbow-mode rainbow-identifiers pug-mode prodigy ob-restclient ob-http multi-term livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc haml-mode eshell-z eshell-prompt-extras esh-help engine-mode emmet-mode deft company-web web-completion-data company-tern dash-functional tern company-restclient restclient know-your-http-well company-auctex color-identifiers-mode coffee-mode auctex-latexmk auctex realgud test-simple loc-changes load-relative git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter disaster diff-hl company-c-headers cmake-mode clang-format browse-at-remote unfill smeargle orgit org-projectile org-present org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flyspell-correct-ivy flyspell-correct flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor company-statistics company auto-yasnippet yasnippet auto-dictionary ac-ispell auto-complete ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-purpose window-purpose imenu-list ivy-hydra info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump diminish define-word counsel-projectile column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile async aggressive-indent adaptive-wrap ace-window ace-link youdao-dictionary))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
