@@ -39,16 +39,11 @@ This function should only modify configuration layer settings."
      (auto-completion :variables auto-completion-enable-sort-by-usage t
                       auto-completion-enable-snippets-in-popup t
                       :disabled-for org markdown)
-     restclient
      (latex :variables latex-enable-auto-fill t)
-     deft
-     react
      html
-     ranger
-     (colors :variables
-			 colors-enable-nyan-cat-progress-bar t)
-     prodigy
-     search-engine
+     colors
+     ;; (colors :variables
+			 ;; colors-enable-nyan-cat-progress-bar t)
      better-defaults
      emacs-lisp
      windows-scripts
@@ -58,7 +53,6 @@ This function should only modify configuration layer settings."
      osx
      smex
      gtags
-     search-engine
      org
      yaml
      sql
@@ -129,7 +123,7 @@ It should only modify the values of Spacemacs settings."
    ;; with `:variables' keyword (similar to layers). Check the editing styles
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
-   dotspacemacs-editing-style 'vim
+   dotspacemacs-editing-style 'emacs
    ;; If non-nil output loading progress in `*Messages*' buffer. (default nil)
    dotspacemacs-verbose-loading nil
    ;; Specify the startup banner. Default value is `official', it displays
@@ -154,8 +148,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(spacemacs-light
+                         spacemacs-dark)
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
@@ -174,7 +168,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-ex-command-key ":"
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
-   dotspacemacs-emacs-leader-key "M-m"
+   dotspacemacs-emacs-leader-key "C-;"
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
@@ -381,7 +375,9 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   (global-set-key (kbd "C-s") 'helm-swoop-from-isearch)
-
+  (global-set-key (kbd "H-d") 'kill-word)
+  (global-set-key (kbd "H-k") 'kill-line)
+  (global-set-key (kbd "H-g") 'goto-line)
   (setq powerline-default-separator 'arrow)
   (global-hungry-delete-mode t)
   (setq url-automatic-caching t)
