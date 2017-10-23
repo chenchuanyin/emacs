@@ -29,7 +29,7 @@
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(python
+   '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -50,6 +50,10 @@
             c-c++-enable-clang-format-on-save t)
      java
      javascript
+     (python :variables
+             python-test-runner '(pytest nose)
+             python-enable-yapf-format-on-save t
+             python-sort-imports-on-save t)
      html
      lua
      (go :variables  go-tab-width 4
@@ -71,7 +75,7 @@
      nginx
      search-engine
      (colors :variables
-		  	     colors-enable-nyan-cat-progress-bar t
+		  	     ;;colors-enable-nyan-cat-progress-bar t
 		  	     colors-enable-rainbow-identifiers t)
      ;; org
      (shell :variables
@@ -85,7 +89,7 @@
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(protobuf-mode gradle-mode)
+   dotspacemacs-additional-packages '(protobuf-mode gradle-mode exec-path-from-shell anaconda-mode)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -165,7 +169,7 @@
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 14
+                               :size 15
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -262,7 +266,7 @@
    dotspacemacs-loading-progress-bar t
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
-   dotspacemacs-fullscreen-at-startup nil
+   dotspacemacs-fullscreen-at-startup t
    ;; If non-nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
    dotspacemacs-fullscreen-use-non-native nil
@@ -301,7 +305,7 @@
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers t
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -318,7 +322,7 @@
    dotspacemacs-highlight-delimiters 'all
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server nil
+   dotspacemacs-persistent-server t
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
    ;; (default '("rg" "ag" "pt" "ack" "grep"))
@@ -353,7 +357,7 @@
    ;; `trailing' to delete only the whitespace at end of lines, `changed' to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup nil
+   dotspacemacs-whitespace-cleanup 'trailing
    ;; Either nil or a number of seconds. If non-nil zone out after the specified
    ;; number of seconds. (default nil)
    dotspacemacs-zone-out-when-idle nil
@@ -374,6 +378,7 @@
           ("org-cn"   . "https://elpa.emacs-china.org/org/")
           ("gnu-cn"   . "https://elpa.emacs-china.org/gnu/")))
   (setq socks-server '("Default server" "127.0.0.1" 1080 5))
+  (setq exec-path-from-shell-check-startup-files nil)
   )
 
 (defun dotspacemacs/user-config ()
@@ -382,8 +387,8 @@
  configuration.
  Put your configuration code here, except for variables that should be set
  before packages are loaded."
-  (global-linum-mode t)
   (global-hungry-delete-mode t)
+  (display-time-mode t) ;;显示当前时间
   (global-set-key (kbd "C-s") 'helm-swoop)
   (global-set-key (kbd "C-=") 'er/expand-region)
   (global-set-key (kbd "H-f") 'helm-swoop)
@@ -393,7 +398,8 @@
   (global-set-key (kbd "H-d") 'avy-copy-line)
   (global-set-key (kbd "H-b") 'helm-buffers-list)
   (global-set-key (kbd "H-r") 'helm-recentf)
-  )
+  (exec-path-from-shell-copy-env "PYTHONPATH")
+)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -407,10 +413,11 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(clang-format-style "chromium")
+ '(clang-format-style "llvm")
  '(package-selected-packages
    (quote
     (stickyfunc-enhance helm-cscope xcscope flycheck sbt-mode scala-mode eclim orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain gnuplot evil-org company-auctex auctex-latexmk auctex nginx-mode sql-indent ranger ibuffer-projectile dockerfile-mode docker tablist docker-tramp magit-gh-pulls github-search github-clone gist gh marshal logito pcache ht company-lua lua-mode yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic web-beautify test-simple loc-changes load-relative livid-mode skewer-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc htmlize simple-httpd haml-mode engine-mode web-completion-data company-tern dash-functional tern go-mode coffee-mode levenshtein treemacs pfuture markdown-mode gitignore-mode git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter magit magit-popup git-commit with-editor diff-hl company browse-at-remote yasnippet auto-complete neotree define-word xterm-color ws-butler winum which-key web-mode volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toc-org tagedit symon string-inflection spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud rainbow-mode rainbow-identifiers rainbow-delimiters pug-mode protobuf-mode popwin persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary org-plus-contrib org-bullets open-junk-file mwim multi-term move-text mmm-mode meghanada markdown-toc magit-gitflow macrostep lorem-ipsum linum-relative link-hint launchctl info+ indent-guide impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime emmet-mode elisp-slime-nav editorconfig dumb-jump disaster dash-at-point company-web company-statistics company-go company-emacs-eclim company-c-headers column-enforce-mode color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode clang-format auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell)))
+ '(python-shell-exec-path (quote ("/usr/local/bin/python")))
  '(tramp-syntax (quote default) nil (tramp)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -419,4 +426,3 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
-
