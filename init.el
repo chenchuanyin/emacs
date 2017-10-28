@@ -29,7 +29,7 @@
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(yaml
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -47,7 +47,8 @@
      (c-c++ :variables
             c-c++-default-mode-for-headers 'c++-mode
             c-c++-enable-clang-support t
-            c-c++-enable-clang-format-on-save t)
+            c-c++-enable-clang-format-on-save t
+            modern-c++-font-lock-mode t)
      java
      javascript
      (python :variables
@@ -56,8 +57,13 @@
              python-sort-imports-on-save t)
      html
      lua
-     (go :variables  go-tab-width 4
-          go-use-gometalinter t)
+     (go :variables
+         go-tab-width 2
+         auto-complete-mode t
+         go-use-gometalinter t
+         gofmt-command "goimports"
+         gofmt-before-save t)
+     rust
 		 ranger
 		 ibuffer
 		 sql
@@ -80,7 +86,7 @@
      ;; org
      (shell :variables
             shell-default-height 30
-            shell-default-position 'right)
+            shell-default-position 'bottom)
      ;; spell-checking
      ;; syntax-checking
      version-control
@@ -89,7 +95,12 @@
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(protobuf-mode gradle-mode exec-path-from-shell anaconda-mode)
+   dotspacemacs-additional-packages '(protobuf-mode
+                                      gradle-mode
+                                      exec-path-from-shell
+                                      anaconda-mode
+                                      modern-cpp-font-lock
+                                      )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -145,7 +156,7 @@
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
-   dotspacemacs-startup-banner 'official
+   dotspacemacs-startup-banner 'random
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
@@ -172,7 +183,7 @@
                                :size 15
                                :weight normal
                                :width normal
-                               :powerline-scale 1.1)
+                               :powerline-scale 1.0)
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands `M-x' (after pressing on the leader key).
@@ -266,7 +277,7 @@
    dotspacemacs-loading-progress-bar t
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
-   dotspacemacs-fullscreen-at-startup t
+   dotspacemacs-fullscreen-at-startup nil
    ;; If non-nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
    dotspacemacs-fullscreen-use-non-native nil
@@ -322,7 +333,7 @@
    dotspacemacs-highlight-delimiters 'all
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server t
+   dotspacemacs-persistent-server nil
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
    ;; (default '("rg" "ag" "pt" "ack" "grep"))
@@ -390,15 +401,26 @@
   (global-hungry-delete-mode t)
   (display-time-mode t) ;;显示当前时间
   (global-set-key (kbd "C-s") 'helm-swoop)
+  (global-set-key (kbd "C-S-s") 'spacemacs/helm-swoop-region-or-symbol)
   (global-set-key (kbd "C-=") 'er/expand-region)
   (global-set-key (kbd "H-f") 'helm-swoop)
+  (global-set-key (kbd "H-S-f") 'spacemacs/helm-swoop-region-or-symbol)
+  (global-set-key (kbd "H-m") 'spacemacs/toggle-maximize-buffer)
+  (global-set-key (kbd "H-t") 'spacemacs/default-pop-shell)
   (global-set-key (kbd "H-o") 'helm-find-files)
+  (global-set-key (kbd "H-n") 'er/expand-region)
+  (global-set-key (kbd "H-p") 'er/contract-region)
   (global-set-key (kbd "H-k") 'kill-this-buffer)
-  (global-set-key (kbd "H-x") 'evil-delete)
-  (global-set-key (kbd "H-d") 'avy-copy-line)
+  (global-set-key (kbd "H-x") 'evil-delete-whole-line)
+  (global-set-key (kbd "H-d") 'spacemacs/duplicate-line-or-region)
   (global-set-key (kbd "H-b") 'helm-buffers-list)
   (global-set-key (kbd "H-r") 'helm-recentf)
-  (exec-path-from-shell-copy-env "PYTHONPATH")
+  (global-set-key (kbd "H-l") 'evil-avy-goto-line)
+  (global-set-key (kbd "<H-return>") 'spacemacs/toggle-fullscreen-frame)
+  (global-set-key (kbd "H-.") 'spacemacs/jump-to-definition)
+  (global-set-key (kbd "H-[") 'helm-gtags-previous-history)
+  (global-set-key (kbd "H-]") 'helm-gtags-next-history)
+  (global-set-key (kbd "H-/") 'spacemacs/comment-or-uncomment-lines)
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -416,7 +438,7 @@ This function is called at the very end of Spacemacs initialization."
  '(clang-format-style "llvm")
  '(package-selected-packages
    (quote
-    (stickyfunc-enhance helm-cscope xcscope flycheck sbt-mode scala-mode eclim orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain gnuplot evil-org company-auctex auctex-latexmk auctex nginx-mode sql-indent ranger ibuffer-projectile dockerfile-mode docker tablist docker-tramp magit-gh-pulls github-search github-clone gist gh marshal logito pcache ht company-lua lua-mode yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic web-beautify test-simple loc-changes load-relative livid-mode skewer-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc htmlize simple-httpd haml-mode engine-mode web-completion-data company-tern dash-functional tern go-mode coffee-mode levenshtein treemacs pfuture markdown-mode gitignore-mode git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter magit magit-popup git-commit with-editor diff-hl company browse-at-remote yasnippet auto-complete neotree define-word xterm-color ws-butler winum which-key web-mode volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toc-org tagedit symon string-inflection spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud rainbow-mode rainbow-identifiers rainbow-delimiters pug-mode protobuf-mode popwin persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary org-plus-contrib org-bullets open-junk-file mwim multi-term move-text mmm-mode meghanada markdown-toc magit-gitflow macrostep lorem-ipsum linum-relative link-hint launchctl info+ indent-guide impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime emmet-mode elisp-slime-nav editorconfig dumb-jump disaster dash-at-point company-web company-statistics company-go company-emacs-eclim company-c-headers column-enforce-mode color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode clang-format auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell)))
+    (flycheck-pos-tip pos-tip flycheck-gometalinter helm-tramp powerline spinner less-css-mode hydra parent-mode window-purpose imenu-list projectile pkg-info epl request flx smartparens iedit anzu evil goto-chg undo-tree highlight diminish bind-map bind-key packed f dash s ace-window helm avy helm-core async popup modern-cpp-font-lock yaml-mode toml-mode racer flycheck-rust cargo rust-mode stickyfunc-enhance helm-cscope xcscope flycheck sbt-mode scala-mode eclim orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain gnuplot evil-org company-auctex auctex-latexmk auctex nginx-mode sql-indent ranger ibuffer-projectile dockerfile-mode docker tablist docker-tramp magit-gh-pulls github-search github-clone gist gh marshal logito pcache ht company-lua lua-mode yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic web-beautify test-simple loc-changes load-relative livid-mode skewer-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc htmlize simple-httpd haml-mode engine-mode web-completion-data company-tern dash-functional tern go-mode coffee-mode levenshtein treemacs pfuture markdown-mode gitignore-mode git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter magit magit-popup git-commit with-editor diff-hl company browse-at-remote yasnippet auto-complete neotree define-word xterm-color ws-butler winum which-key web-mode volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toc-org tagedit symon string-inflection spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud rainbow-mode rainbow-identifiers rainbow-delimiters pug-mode protobuf-mode popwin persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary org-plus-contrib org-bullets open-junk-file mwim multi-term move-text mmm-mode meghanada markdown-toc magit-gitflow macrostep lorem-ipsum linum-relative link-hint launchctl info+ indent-guide impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime emmet-mode elisp-slime-nav editorconfig dumb-jump disaster dash-at-point company-web company-statistics company-go company-emacs-eclim company-c-headers column-enforce-mode color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode clang-format auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell)))
  '(python-shell-exec-path (quote ("/usr/local/bin/python")))
  '(tramp-syntax (quote default) nil (tramp)))
 (custom-set-faces
