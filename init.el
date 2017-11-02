@@ -100,6 +100,10 @@
                                       exec-path-from-shell
                                       anaconda-mode
                                       modern-cpp-font-lock
+                                      dracula-theme
+                                      github-modern-theme
+                                      color-theme-solarized
+                                      youdao-dictionary
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -172,15 +176,18 @@
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(
+                         spacemacs-light
+                         dracula
+                         spacemacs-dark
+                         )
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 15
+                               :size 13
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -259,7 +266,7 @@
    dotspacemacs-enable-paste-transient-state nil
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
-   dotspacemacs-which-key-delay 0.4
+   dotspacemacs-which-key-delay 0.1
    ;; Which-key frame position. Possible values are `right', `bottom' and
    ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
    ;; right; if there is insufficient space it displays it at the bottom.
@@ -398,11 +405,12 @@
  configuration.
  Put your configuration code here, except for variables that should be set
  before packages are loaded."
-  (global-hungry-delete-mode t)
+  ;; (global-hungry-delete-mode t)
   (display-time-mode t) ;;显示当前时间
   (global-set-key (kbd "C-s") 'helm-swoop)
   (global-set-key (kbd "C-S-s") 'spacemacs/helm-swoop-region-or-symbol)
   (global-set-key (kbd "C-=") 'er/expand-region)
+  (global-set-key (kbd "C-h") 'c-electric-delete)
   (global-set-key (kbd "H-f") 'helm-swoop)
   (global-set-key (kbd "H-S-f") 'spacemacs/helm-swoop-region-or-symbol)
   (global-set-key (kbd "H-m") 'spacemacs/toggle-maximize-buffer)
@@ -412,14 +420,15 @@
   (global-set-key (kbd "H-p") 'er/contract-region)
   (global-set-key (kbd "H-k") 'kill-this-buffer)
   (global-set-key (kbd "H-x") 'evil-delete-whole-line)
+  ;; (global-set-key (kbd "H-c") 'evil-yankwe)
   (global-set-key (kbd "H-d") 'spacemacs/duplicate-line-or-region)
   (global-set-key (kbd "H-b") 'helm-buffers-list)
   (global-set-key (kbd "H-r") 'helm-recentf)
   (global-set-key (kbd "H-l") 'evil-avy-goto-line)
   (global-set-key (kbd "<H-return>") 'spacemacs/toggle-fullscreen-frame)
   (global-set-key (kbd "H-.") 'spacemacs/jump-to-definition)
-  (global-set-key (kbd "H-[") 'helm-gtags-previous-history)
-  (global-set-key (kbd "H-]") 'helm-gtags-next-history)
+  (global-set-key (kbd "H-[") 'winner-undo)
+  (global-set-key (kbd "H-]") 'winner-redo)
   (global-set-key (kbd "H-/") 'spacemacs/comment-or-uncomment-lines)
 )
 
@@ -435,11 +444,15 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(clang-format-style "llvm")
+ '(clang-format-style
+   "{BasedOnStyle: LLVM,UseTab: Never,IndentWidth: 2,ColumnLimit: 127,AlignConsecutiveAssignments: true}")
+ '(custom-safe-themes
+   (quote
+    ("8ed752276957903a270c797c4ab52931199806ccd9f0c3bb77f6f4b9e71b9272" "44c566df0e1dfddc60621711155b1be4665dd3520b290cb354f8270ca57f8788" default)))
+ '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (flycheck-pos-tip pos-tip flycheck-gometalinter helm-tramp powerline spinner less-css-mode hydra parent-mode window-purpose imenu-list projectile pkg-info epl request flx smartparens iedit anzu evil goto-chg undo-tree highlight diminish bind-map bind-key packed f dash s ace-window helm avy helm-core async popup modern-cpp-font-lock yaml-mode toml-mode racer flycheck-rust cargo rust-mode stickyfunc-enhance helm-cscope xcscope flycheck sbt-mode scala-mode eclim orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain gnuplot evil-org company-auctex auctex-latexmk auctex nginx-mode sql-indent ranger ibuffer-projectile dockerfile-mode docker tablist docker-tramp magit-gh-pulls github-search github-clone gist gh marshal logito pcache ht company-lua lua-mode yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic web-beautify test-simple loc-changes load-relative livid-mode skewer-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc htmlize simple-httpd haml-mode engine-mode web-completion-data company-tern dash-functional tern go-mode coffee-mode levenshtein treemacs pfuture markdown-mode gitignore-mode git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter magit magit-popup git-commit with-editor diff-hl company browse-at-remote yasnippet auto-complete neotree define-word xterm-color ws-butler winum which-key web-mode volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toc-org tagedit symon string-inflection spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud rainbow-mode rainbow-identifiers rainbow-delimiters pug-mode protobuf-mode popwin persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary org-plus-contrib org-bullets open-junk-file mwim multi-term move-text mmm-mode meghanada markdown-toc magit-gitflow macrostep lorem-ipsum linum-relative link-hint launchctl info+ indent-guide impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime emmet-mode elisp-slime-nav editorconfig dumb-jump disaster dash-at-point company-web company-statistics company-go company-emacs-eclim company-c-headers column-enforce-mode color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode clang-format auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell)))
- '(python-shell-exec-path (quote ("/usr/local/bin/python")))
+    (monokai-theme youdao-dictionary yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs pfuture toml-mode toc-org tagedit symon string-inflection sql-indent spaceline powerline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud test-simple loc-changes load-relative ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pip-requirements persp-mode pcre2el pbcopy password-generator paradox spinner osx-trash osx-dictionary orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-bullets open-junk-file nginx-mode mwim multi-term move-text modern-cpp-font-lock mmm-mode meghanada flycheck markdown-toc markdown-mode magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode skewer-mode live-py-mode linum-relative link-hint launchctl js2-refactor multiple-cursors js2-mode js-doc info+ indent-guide impatient-mode simple-httpd ibuffer-projectile hydra hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-gtags helm-gitignore request helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haml-mode gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gnuplot gitignore-mode github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gist gh marshal logito pcache ht gh-md ggtags fuzzy flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist org-plus-contrib evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit git-commit with-editor evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight eshell-z eshell-prompt-extras esh-help ensime sbt-mode scala-mode engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump dracula-theme dockerfile-mode docker json-mode tablist magit-popup docker-tramp json-snatcher json-reformat disaster diminish diff-hl cython-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-lua lua-mode company-go go-mode company-emacs-eclim eclim company-c-headers company-auctex company-anaconda company column-enforce-mode color-theme-solarized color-theme color-identifiers-mode coffee-mode cmake-mode cmake-ide levenshtein clean-aindent-mode clang-format cargo rust-mode browse-at-remote bind-map bind-key auto-yasnippet yasnippet auto-highlight-symbol auto-compile packed auctex-latexmk auctex anaconda-mode pythonic f dash s aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core async ac-ispell auto-complete popup)))
  '(tramp-syntax (quote default) nil (tramp)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
