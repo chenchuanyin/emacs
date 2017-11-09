@@ -29,13 +29,14 @@
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(yaml
+   '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      helm
+     yaml
      (auto-completion :variables
 		   			          auto-completion-enable-sort-by-usage t)
      better-defaults
@@ -77,7 +78,6 @@
           magit-refs-show-commit-count 'all
           magit-revision-show-gravatars nil)
      github
-     docker
      nginx
      search-engine
      (colors :variables
@@ -85,7 +85,7 @@
 		  	     colors-enable-rainbow-identifiers t)
      ;; org
      (shell :variables
-            shell-default-height 30
+            shell-default-height 50
             shell-default-position 'bottom)
      ;; spell-checking
      ;; syntax-checking
@@ -177,6 +177,7 @@
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(
+                         github-modern
                          leuven
                          spacemacs-light
                          dracula
@@ -422,7 +423,7 @@
   (global-set-key (kbd "H-p") 'er/contract-region)
   (global-set-key (kbd "H-k") 'kill-this-buffer)
   (global-set-key (kbd "H-x") 'evil-delete-whole-line)
-  ;; (global-set-key (kbd "H-c") 'evil-yankwe)
+  ;; (global-set-key (kbd "H-c") 'evil-yank)
   (global-set-key (kbd "H-d") 'spacemacs/duplicate-line-or-region)
   (global-set-key (kbd "H-b") 'helm-buffers-list)
   (global-set-key (kbd "H-r") 'helm-recentf)
