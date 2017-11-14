@@ -36,6 +36,7 @@
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      helm
+     ;; ivy
      yaml
      (auto-completion :variables
 		   			          auto-completion-enable-sort-by-usage t)
@@ -48,13 +49,15 @@
      (c-c++ :variables
             c-c++-default-mode-for-headers 'c++-mode
             c-c++-enable-clang-support t
-            c-c++-enable-clang-format-on-save t
-            modern-c++-font-lock-mode t)
+            c-c++-enable-clang-format-on-save t)
+            ;; modern-c++-font-lock-mode t)
      java
-     javascript
+     php
+     (javascript :variables javascript-disable-tern-port-files nil)
      (python :variables
              python-test-runner '(pytest nose)
              python-enable-yapf-format-on-save t
+             python-fill-column 128
              python-sort-imports-on-save t)
      html
      lua
@@ -79,16 +82,17 @@
           magit-revision-show-gravatars nil)
      github
      nginx
+     ;; ycmd
      search-engine
      (colors :variables
-		  	     ;;colors-enable-nyan-cat-progress-bar t
+		  	     colors-enable-nyan-cat-progress-bar t
 		  	     colors-enable-rainbow-identifiers t)
      ;; org
      (shell :variables
             shell-default-height 50
             shell-default-position 'bottom)
      ;; spell-checking
-     ;; syntax-checking
+     syntax-checking
      version-control
      )
    ;; List of additional packages that will be installed without being
@@ -177,9 +181,9 @@
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(
+                         spacemacs-light
                          github-modern
                          leuven
-                         spacemacs-light
                          dracula
                          spacemacs-dark
                          )
@@ -393,12 +397,12 @@
  configuration.
  It is mostly for variables that should be set before packages are loaded.
  If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (setq configuration-layer--elpa-archives
-        '(("melpa-cn" . "https://elpa.emacs-china.org/melpa/")
-          ("org-cn"   . "https://elpa.emacs-china.org/org/")
-          ("gnu-cn"   . "https://elpa.emacs-china.org/gnu/")))
-  (setq socks-server '("Default server" "127.0.0.1" 1080 5))
-  (setq exec-path-from-shell-check-startup-files nil)
+  (setq configuration-layer-elpa-archives ;; configuration-layer--elpa-archives
+        '(("melpa" . "https://elpa.emacs-china.org/melpa/")
+          ("org"   . "https://elpa.emacs-china.org/org/")
+          ("gnu"   . "https://elpa.emacs-china.org/gnu/")))
+  (setq url-gateway-method 'socks)
+  (setq socks-server '("Default server" "127.0.0.1" 9999 5))
   )
 
 (defun dotspacemacs/user-config ()
@@ -411,11 +415,9 @@
   (setq redisplay-dont-pause nil) ;;防止中文输入时有跳闪
   (display-time-mode t) ;;显示当前时间
   (global-set-key (kbd "C-s") 'helm-swoop)
-  (global-set-key (kbd "C-S-s") 'spacemacs/helm-swoop-region-or-symbol)
+  (global-set-key (kbd "H-f") 'helm-swoop)
   (global-set-key (kbd "C-=") 'er/expand-region)
   (global-set-key (kbd "C-h") 'c-electric-delete)
-  (global-set-key (kbd "H-f") 'helm-swoop)
-  (global-set-key (kbd "H-S-f") 'spacemacs/helm-swoop-region-or-symbol)
   (global-set-key (kbd "H-m") 'spacemacs/toggle-maximize-buffer)
   (global-set-key (kbd "H-t") 'spacemacs/default-pop-shell)
   (global-set-key (kbd "H-o") 'helm-find-files)
@@ -423,20 +425,29 @@
   (global-set-key (kbd "H-p") 'er/contract-region)
   (global-set-key (kbd "H-k") 'kill-this-buffer)
   (global-set-key (kbd "H-x") 'evil-delete-whole-line)
-  ;; (global-set-key (kbd "H-c") 'evil-yank)
   (global-set-key (kbd "H-d") 'spacemacs/duplicate-line-or-region)
   (global-set-key (kbd "H-b") 'helm-buffers-list)
   (global-set-key (kbd "H-r") 'helm-recentf)
   (global-set-key (kbd "H-l") 'evil-avy-goto-line)
   (global-set-key (kbd "<H-return>") 'spacemacs/toggle-fullscreen-frame)
   (global-set-key (kbd "H-.") 'spacemacs/jump-to-definition)
-  (global-set-key (kbd "H-[") 'winner-undo)
-  (global-set-key (kbd "H-]") 'winner-redo)
+  (global-set-key (kbd "H-[") 'evil-jump-backward)
+  (global-set-key (kbd "H-]") 'evil-jump-forward)
   (global-set-key (kbd "H-/") 'spacemacs/comment-or-uncomment-lines)
+
+
+  ;; ycmd config
+  ;; (set-variable 'ycmd-server-command '("/usr/local/bin/python" "/Users/silver/Documents/git/ycmd/ycmd/"))
+  ;; (set-variable 'ycmd-global-config "/Users/silver/Documents/git/ycmd/examples/.ycm_extra_conf.py")
+  ;; (add-hook 'c-mode-hook 'ycmd-mode)
+  ;; (setq company-backends-c-mode-common '((company-c-headers
+  ;;                                         company-ycmd
+  ;;                                         company-dabbrev :with company-yasnippet)))
+  ;; (setq ycmd-force-semantic-completion t)
+
 )
 
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
+
 (defun dotspacemacs/emacs-custom-settings ()
   "Emacs custom settings.
 This is an auto-generated function, do not modify its content directly, use
@@ -449,7 +460,8 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (auctex-latexmk youdao-dictionary yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection sql-indent spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pip-requirements persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-download org-bullets org-brain open-junk-file nginx-mode mwim multi-term move-text modern-cpp-font-lock mmm-mode meghanada markdown-toc magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint launchctl js2-refactor js-doc info+ indent-guide impatient-mode ibuffer-projectile hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gnuplot github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump dracula-theme dockerfile-mode docker disaster diff-hl cython-mode company-web company-tern company-statistics company-lua company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode cmake-ide clean-aindent-mode clang-format cargo browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell))))
+    (helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-gtags helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag auctex-latexmk ace-jump-helm-line youdao-dictionary yapfify yaml-mode xterm-color ws-butler winum window-purpose which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection sql-indent spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs request realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pip-requirements phpunit phpcbf php-extras php-auto-yasnippets persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-download org-bullets org-brain open-junk-file nginx-mode mwim multi-term move-text modern-cpp-font-lock mmm-mode meghanada markdown-toc magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint launchctl json-mode js2-refactor js-doc info+ indent-guide impatient-mode ibuffer-projectile hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gnuplot gitignore-mode github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy flycheck-rust flycheck-pos-tip flycheck-gometalinter flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme disaster diff-hl cython-mode company-web company-tern company-statistics company-php company-lua company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode cmake-ide clean-aindent-mode clang-format cargo browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ac-ispell)))
+ '(tramp-syntax (quote default) nil (tramp)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
