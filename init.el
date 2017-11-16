@@ -66,6 +66,7 @@
          auto-complete-mode t
          go-use-gometalinter t
          gofmt-command "goimports"
+         run-go-install-on-save t
          gofmt-before-save t)
      rust
 		 ranger
@@ -92,7 +93,7 @@
             shell-default-height 50
             shell-default-position 'bottom)
      ;; spell-checking
-     syntax-checking
+     ;; syntax-checking
      version-control
      )
    ;; List of additional packages that will be installed without being
@@ -193,7 +194,7 @@
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+                               :size 12
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -403,6 +404,10 @@
           ("gnu"   . "https://elpa.emacs-china.org/gnu/")))
   (setq url-gateway-method 'socks)
   (setq socks-server '("Default server" "127.0.0.1" 9999 5))
+  (setq exec-path-from-shell-variables '("PATH"
+                                         "GOPATH"
+                                         "GOROOT"
+                                         "GOBIN"))
   )
 
 (defun dotspacemacs/user-config ()
@@ -413,6 +418,7 @@
  before packages are loaded."
   ;; (global-hungry-delete-mode t)
   (setq redisplay-dont-pause nil) ;;防止中文输入时有跳闪
+  (blink-cursor-mode t)
   (display-time-mode t) ;;显示当前时间
   (global-set-key (kbd "C-s") 'helm-swoop)
   (global-set-key (kbd "H-f") 'helm-swoop)
@@ -447,7 +453,6 @@
 
 )
 
-
 (defun dotspacemacs/emacs-custom-settings ()
   "Emacs custom settings.
 This is an auto-generated function, do not modify its content directly, use
@@ -460,8 +465,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-gtags helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag auctex-latexmk ace-jump-helm-line youdao-dictionary yapfify yaml-mode xterm-color ws-butler winum window-purpose which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection sql-indent spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs request realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pip-requirements phpunit phpcbf php-extras php-auto-yasnippets persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-download org-bullets org-brain open-junk-file nginx-mode mwim multi-term move-text modern-cpp-font-lock mmm-mode meghanada markdown-toc magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint launchctl json-mode js2-refactor js-doc info+ indent-guide impatient-mode ibuffer-projectile hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gnuplot gitignore-mode github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy flycheck-rust flycheck-pos-tip flycheck-gometalinter flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme disaster diff-hl cython-mode company-web company-tern company-statistics company-php company-lua company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode cmake-ide clean-aindent-mode clang-format cargo browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ac-ispell)))
- '(tramp-syntax (quote default) nil (tramp)))
+    (auctex-latexmk youdao-dictionary yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection sql-indent spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pip-requirements phpunit phpcbf php-extras php-auto-yasnippets persp-mode pcre2el pbcopy password-generator paradox osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-download org-bullets org-brain open-junk-file nginx-mode mwim multi-term move-text modern-cpp-font-lock mmm-mode meghanada markdown-toc magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint launchctl json-mode js2-refactor js-doc info+ indent-guide impatient-mode ibuffer-projectile hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag gradle-mode google-translate golden-ratio godoctor go-rename go-guru go-eldoc gnuplot github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme disaster diff-hl cython-mode company-web company-tern company-statistics company-php company-lua company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode cmake-ide clean-aindent-mode clang-format cargo browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
