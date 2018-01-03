@@ -428,7 +428,6 @@
  before packages are loaded."
   ;; (global-hungry-delete-mode t)
   (setq redisplay-dont-pause nil) ;;防止中文输入时有跳闪
-  ;; (setq paradox-github-token 5f662c02aa5535d4a315846ac6c2780a060e264b)
   (setq spaceline-org-clock-p t)
 
   (blink-cursor-mode t)
