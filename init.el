@@ -38,30 +38,32 @@
      helm
      ;; ivy
      yaml
+     windows-scripts
      (auto-completion :variables
 		   			          auto-completion-enable-sort-by-usage t)
      better-defaults
      emacs-lisp
      markdown
-     latex
-     org
+     (latex :variables
+            latex-enable-auto-fill t
+            latex-enable-folding t
+            latex-enable-magic t)
      (org :variables
           org-enable-github-support t
           org-enable-bootstrap-support t
+          org-enable-org-journal-support t
           org-enable-reveal-js-support t)
      treemacs
      (c-c++ :variables
-            c-c++-enable-clang-support t
             c-c++-default-mode-for-headers 'c++-mode
-            c-c++-enable-clang-format-on-save t
-            c-c++-enable-google-newline t
-            c-c++-enable-google-style t)
+            c-c++-enable-clang-support t)
      semantic
      cscope
      java
      php
      ruby
-     (javascript :variables javascript-disable-tern-port-files nil)
+     (javascript :variables javascript-disable-tern-port-files t)
+     react
      (python :variables
              python-test-runner '(pytest nose)
              python-enable-yapf-format-on-save t
@@ -69,20 +71,23 @@
              python-tab-width 2
              auto-complete-mode t
              python-sort-imports-on-save t)
+     octave
      html
      lua
      (go :variables
-         go-tab-width 2
+         go-tab-width 4
          auto-complete-mode t
          go-use-gometalinter t
          gofmt-command "goimports"
-         run-go-install-on-save t
+         go-use-test-args "-race -timeout 10s"
+         godoc-at-point-function 'godoc-gogetdoc
          gofmt-before-save t)
      rust
 		 ranger
 		 ibuffer
 		 sql
-     (gtags :disabled-for go clojure emacs-lisp javascript latex python shell-scripts)
+     protobuf
+     (gtags :disabled-for go clojure emacs-lisp latex python shell-scripts)
      (osx :variables osx-dictionary-dictionary-choice "Simplified Chinese - English")
      (git :variables
           git-magit-status-fullscreen t
@@ -92,25 +97,26 @@
           magit-refs-show-commit-count 'all
           magit-revision-show-gravatars nil)
      github
+     docker
      nginx
+     cmake
      ;; ycmd
      search-engine
      (colors :variables
-		  	     colors-enable-nyan-cat-progress-bar t
+		  	     ;; colors-enable-nyan-cat-progress-bar t
 		  	     colors-enable-rainbow-identifiers t)
      (shell :variables
             shell-default-height 50
             shell-default-position 'bottom)
      ;; spell-checking
      ;; syntax-checking
-     flycheck
      version-control
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(protobuf-mode
+   dotspacemacs-additional-packages '(
                                       gradle-mode
                                       exec-path-from-shell
                                       anaconda-mode
@@ -119,6 +125,8 @@
                                       github-modern-theme
                                       color-theme-solarized
                                       youdao-dictionary
+                                      bazel-mode
+                                      editorconfig
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -167,6 +175,7 @@
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
    dotspacemacs-editing-style 'emacs
+   dotspacemacs-mode-line-theme 'spacemacs
    ;; If non-nil output loading progress in `*Messages*' buffer. (default nil)
    dotspacemacs-verbose-loading nil
    ;; Specify the startup banner. Default value is `official', it displays
@@ -204,7 +213,7 @@
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 14
+                               :size 13
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -426,13 +435,40 @@
  configuration.
  Put your configuration code here, except for variables that should be set
  before packages are loaded."
-  ;; (global-hungry-delete-mode t)
+  (global-hungry-delete-mode t)
   (setq redisplay-dont-pause nil) ;;防止中文输入时有跳闪
   (setq spaceline-org-clock-p t)
 
   (blink-cursor-mode t)
   (display-time-mode t) ;;显示当前时间
 
+  ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path) ;; 配置tramp
+
+  ;;开启editorconfig
+  (use-package editorconfig
+    :ensure t
+    :config
+    (editorconfig-mode 1))
+
+  (use-package company-quickhelp :ensure)
+  (use-package company-lsp
+    :ensure
+    :config
+    ;; 开启yasnippet支持
+    (setq company-lsp-enable-snippet t))
+
+  (use-package company
+    :ensure
+    :config
+    (setq company-minimum-prefix-length 1)
+    (setq company-dabbrev-downcase nil)
+    (setq company-idle-delay 0.2)
+    (setq company-idle-delay 0.2)
+    (add-hook 'company-mode-hook 'company-quickhelp-mode)
+    (add-to-list 'company-backends 'company-lsp))
+
+
+  ;; 配置快捷键
   (global-set-key (kbd "C-s") 'spacemacs/helm-swoop-region-or-symbol)
   (global-set-key (kbd "H-f") 'spacemacs/helm-swoop-region-or-symbol)
   (global-set-key (kbd "C-=") 'er/expand-region)
@@ -453,10 +489,12 @@
   (global-set-key (kbd "H-.") 'spacemacs/jump-to-definition)
   (global-set-key (kbd "H-[") 'evil-jump-backward)
   (global-set-key (kbd "H-]") 'evil-jump-forward)
-  (global-set-key (kbd "H-/") 'spacemacs/comment-or-uncomment-lines)
+  (global-set-key (kbd "H-;") 'spacemacs/comment-or-uncomment-lines)
+  (global-set-key (kbd "H-/") 'spacemacs/helm-project-smart-do-search-region-or-symbol)
   (global-set-key (kbd "H-j") 'spacemacs/helm-jump-in-buffer)
   (global-set-key (kbd "M-n") 'spacemacs/next-error)
   (global-set-key (kbd "M-p") 'spacemacs/previous-error)
+
 )
 
 (defun dotspacemacs/emacs-custom-settings ()
@@ -471,7 +509,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (rvm ruby-tools ruby-test-mode ruby-refactor rubocop rspec-mode robe rbenv rake minitest enh-ruby-mode counsel-gtags counsel swiper ivy chruby bundler inf-ruby ox-twbs ox-reveal ox-gfm youdao-dictionary yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection stickyfunc-enhance srefactor sql-indent spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pip-requirements phpunit phpcbf php-extras php-auto-yasnippets persp-mode pcre2el pbcopy password-generator paradox overseer osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-download org-bullets org-brain open-junk-file nginx-mode nameless mwim mvn multi-term move-text modern-cpp-font-lock mmm-mode meghanada maven-test-mode markdown-toc magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint launchctl json-mode js2-refactor js-doc info+ indent-guide impatient-mode ibuffer-projectile hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag groovy-mode groovy-imports gradle-mode google-translate google-c-style golden-ratio godoctor go-tag go-rename go-guru go-eldoc gnuplot github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme disaster diminish diff-hl cython-mode company-web company-tern company-statistics company-php company-lua company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode cmake-ide clean-aindent-mode clang-format cargo browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile auctex-latexmk aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell))))
+    (go-impl go-gen-test go-fill-struct youdao-dictionary yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection stickyfunc-enhance srefactor sql-indent spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe rjsx-mode reveal-in-osx-finder restart-emacs rbenv ranger rake rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode powershell popwin pippel pipenv pip-requirements phpunit phpcbf php-extras php-auto-yasnippets persp-mode pbcopy password-generator paradox ox-twbs ox-reveal ox-gfm overseer osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-mime org-journal org-download org-bullets org-brain open-junk-file nginx-mode nameless mwim mvn multi-term move-text modern-cpp-font-lock mmm-mode minitest meghanada maven-test-mode markdown-toc magithub magit-svn magit-gitflow magit-gh-pulls magic-latex-buffer macrostep lorem-ipsum livid-mode live-py-mode link-hint launchctl json-navigator js2-refactor js-doc indent-guide importmagic impatient-mode ibuffer-projectile hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-ctest helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag groovy-mode groovy-imports gradle-mode google-translate google-c-style golden-ratio godoctor go-tag go-rename go-guru go-eldoc gnuplot github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme dockerfile-mode docker disaster diminish diff-hl cython-mode counsel-projectile company-web company-tern company-statistics company-rtags company-quickhelp company-php company-lua company-lsp company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode clang-format chruby centered-cursor-mode cargo bundler browse-at-remote bazel-mode auto-yasnippet auto-highlight-symbol auto-compile auctex-latexmk aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
