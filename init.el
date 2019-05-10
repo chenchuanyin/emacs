@@ -49,6 +49,7 @@
             latex-enable-folding t
             latex-enable-magic t)
      (org :variables
+          org-want-todo-bindings t
           org-enable-github-support t
           org-enable-bootstrap-support t
           org-enable-org-journal-support t
@@ -56,7 +57,12 @@
      treemacs
      (c-c++ :variables
             c-c++-default-mode-for-headers 'c++-mode
-            c-c++-enable-clang-support t)
+            ;; c-c++-backend 'lsp-ccls
+            ;; c-c++-adopt-subprojects t
+            ;; c-c++-lsp-executable "/Users/silver/Documents/git/ccls/Release/ccls"
+            ;; c-c++-lsp-sem-highlight-rainbow t
+            c-c++-enable-clang-support t
+            )
      semantic
      cscope
      java
@@ -75,19 +81,18 @@
      html
      lua
      (go :variables
-         go-tab-width 4
+         go-backend 'lsp
          auto-complete-mode t
          go-use-gometalinter t
          gofmt-command "goimports"
-         go-use-test-args "-race -timeout 10s"
-         godoc-at-point-function 'godoc-gogetdoc
-         gofmt-before-save t)
+         go-tab-width 4
+         go-format-before-save t)
      rust
 		 ranger
 		 ibuffer
 		 sql
      protobuf
-     (gtags :disabled-for go clojure emacs-lisp latex python shell-scripts)
+     (gtags :disabled-for c c++ go clojure emacs-lisp latex python shell-scripts)
      (osx :variables osx-dictionary-dictionary-choice "Simplified Chinese - English")
      (git :variables
           git-magit-status-fullscreen t
@@ -100,14 +105,15 @@
      docker
      nginx
      cmake
+     lsp
      ;; ycmd
      search-engine
      (colors :variables
 		  	     ;; colors-enable-nyan-cat-progress-bar t
 		  	     colors-enable-rainbow-identifiers t)
      (shell :variables
-            shell-default-height 50
-            shell-default-position 'bottom)
+            shell-default-width 50
+            shell-default-position 'right)
      ;; spell-checking
      ;; syntax-checking
      version-control
@@ -127,6 +133,8 @@
                                       youdao-dictionary
                                       bazel-mode
                                       editorconfig
+                                      lsp-mode
+                                      eglot
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -184,7 +192,7 @@
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
-   dotspacemacs-startup-banner 'random
+   dotspacemacs-startup-banner 'official
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
@@ -202,8 +210,8 @@
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(
                          spacemacs-dark
-                         spacemacs-light
                          github-modern
+                         spacemacs-light
                          leuven
                          dracula
                          )
@@ -213,7 +221,7 @@
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+                               :size 14
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -226,7 +234,7 @@
    dotspacemacs-ex-command-key ":"
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
-   dotspacemacs-emacs-leader-key "H-h"
+   dotspacemacs-emacs-leader-key "C-u"
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
@@ -370,7 +378,7 @@
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
    ;; (default '("rg" "ag" "pt" "ack" "grep"))
-   dotspacemacs-search-tools '("rg" "ag" "pt" "ack" "grep")
+   dotspacemacs-search-tools '("pt" "rg" "ag" "ack" "grep")
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
    ;; Not used for now. (default nil)
@@ -401,7 +409,7 @@
    ;; `trailing' to delete only the whitespace at end of lines, `changed' to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup 'trailing
+   dotspacemacs-whitespace-cleanup 'nil
    ;; Either nil or a number of seconds. If non-nil zone out after the specified
    ;; number of seconds. (default nil)
    dotspacemacs-zone-out-when-idle nil
@@ -421,8 +429,9 @@
         '(("melpa" . "https://elpa.emacs-china.org/melpa/")
           ("org"   . "https://elpa.emacs-china.org/org/")
           ("gnu"   . "https://elpa.emacs-china.org/gnu/")))
-  ;; (setq url-gateway-method 'socks)
-  ;; (setq socks-server '("Default server" "127.0.0.1" 9999 5))
+
+  ; (setq url-gateway-method 'socks)
+  ; (setq socks-server '("Default server" "127.0.0.1" 9999 5))
   (setq exec-path-from-shell-variables '("PATH"
                                          "GOPATH"
                                          "GOROOT"
@@ -445,10 +454,10 @@
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path) ;; 配置tramp
 
   ;;开启editorconfig
-  (use-package editorconfig
-    :ensure t
-    :config
-    (editorconfig-mode 1))
+  ;; (use-package editorconfig
+  ;;   :ensure t
+  ;;   :config
+  ;;   (editorconfig-mode 1))
 
   (use-package company-quickhelp :ensure)
   (use-package company-lsp
@@ -467,6 +476,74 @@
     (add-hook 'company-mode-hook 'company-quickhelp-mode)
     (add-to-list 'company-backends 'company-lsp))
 
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+  (setq mouse-wheel-progressive-speed nil)
+
+  ;; (require 'eglot)
+  ;; (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+  ;; (add-hook 'c-mode-hook 'eglot-ensure)
+  ;; (add-hook 'c++-mode-hook 'eglot-ensure)
+
+  (setq tramp-ssh-controlmaster-options
+        "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
+  ;; define the refile targets
+  (defvar org-agenda-dir "" "gtd org files location")
+  (setq-default org-agenda-dir "~/Documents/git/chenchuanyin/org-notes")
+  (setq org-agenda-file-note (expand-file-name "notes.org" org-agenda-dir))
+  (setq org-agenda-file-gtd (expand-file-name "gtd.org" org-agenda-dir))
+  (setq org-agenda-file-journal (expand-file-name "journal.org" org-agenda-dir))
+  (setq org-agenda-file-code-snippet (expand-file-name "snippet.org" org-agenda-dir))
+  (setq org-default-notes-file (expand-file-name "gtd.org" org-agenda-dir))
+  (setq org-agenda-files (list org-agenda-dir))
+
+  (with-eval-after-load 'org-agenda
+    (define-key org-agenda-mode-map (kbd "P") 'org-pomodoro)
+    (spacemacs/set-leader-keys-for-major-mode 'org-agenda-mode
+      "." 'spacemacs/org-agenda-transient-state/body)
+    )
+  ;; the %i would copy the selected text into the template
+  ;;add multi-file journal
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline org-agenda-file-gtd "Workspace")
+           "* TODO [#B] %?\n  %i\n"
+           :empty-lines 1)
+          ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
+           "* %?\n  %i\n %U"
+           :empty-lines 1)
+          ("b" "Blog Ideas" entry (file+headline org-agenda-file-note "Blog Ideas")
+           "* TODO [#B] %?\n  %i\n %U"
+           :empty-lines 1)
+          ("s" "Code Snippet" entry
+           (file org-agenda-file-code-snippet)
+           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
+          ("w" "work" entry (file+headline org-agenda-file-gtd "Work")
+           "* TODO [#A] %?\n  %i\n %U"
+           :empty-lines 1)
+          ("c" "Chrome" entry (file+headline org-agenda-file-note "Quick notes")
+           "* TODO [#C] %?\n %(retrieve-chrome-current-tab-url)\n %i\n %U"
+           :empty-lines 1)
+          ("l" "links" entry (file+headline org-agenda-file-note "Quick notes")
+           "* TODO [#C] %?\n  %i\n %a \n %U"
+           :empty-lines 1)
+          ("j" "Journal Entry"
+           entry (file+datetree org-agenda-file-journal)
+           "* %?"
+           :empty-lines 1)))
+
+  ;;An entry without a cookie is treated just like priority ' B '.
+  ;;So when create new task, they are default 重要且紧急
+  (setq org-agenda-custom-commands
+        '(
+          ("w" . "任务安排")
+          ("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
+          ("wb" "重要且不紧急的任务" tags-todo "-Weekly-Monthly-Daily+PRIORITY=\"B\"")
+          ("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
+          ("b" "Blog" tags-todo "BLOG")
+          ("p" . "项目安排")
+          ("W" "Weekly Review"
+           ((stuck "") ;; review stuck projects as designated by org-stuck-projects
+            (tags-todo "PROJECT") ;; review all projects (assuming you use todo keywords to designate projects)
+            ))))
 
   ;; 配置快捷键
   (global-set-key (kbd "C-s") 'spacemacs/helm-swoop-region-or-symbol)
@@ -475,6 +552,7 @@
   (global-set-key (kbd "C-h") 'c-electric-delete)
   (global-set-key (kbd "H-m") 'spacemacs/toggle-maximize-buffer)
   (global-set-key (kbd "H-t") 'spacemacs/default-pop-shell)
+  (global-set-key (kbd "H-S-t") 'shell)
   (global-set-key (kbd "H-o") 'helm-find-files)
   (global-set-key (kbd "H-n") 'er/expand-region)
   (global-set-key (kbd "H-p") 'er/contract-region)
@@ -485,8 +563,9 @@
   (global-set-key (kbd "H-e") 'helm-buffers-list)
   (global-set-key (kbd "H-r") 'helm-recentf)
   (global-set-key (kbd "H-l") 'evil-avy-goto-line)
-  (global-set-key (kbd "<H-return>") 'spacemacs/toggle-fullscreen-frame)
+  (global-set-key (kbd "<H-return>") 'spacemacs/toggle-fullscreen)
   (global-set-key (kbd "H-.") 'spacemacs/jump-to-definition)
+  (global-set-key (kbd "H-,") 'xref-find-references)
   (global-set-key (kbd "H-[") 'evil-jump-backward)
   (global-set-key (kbd "H-]") 'evil-jump-forward)
   (global-set-key (kbd "H-;") 'spacemacs/comment-or-uncomment-lines)
@@ -494,7 +573,8 @@
   (global-set-key (kbd "H-j") 'spacemacs/helm-jump-in-buffer)
   (global-set-key (kbd "M-n") 'spacemacs/next-error)
   (global-set-key (kbd "M-p") 'spacemacs/previous-error)
-
+  (global-set-key (kbd "H-c") 'kill-ring-save)
+  (global-set-key (kbd "H-i") 'helm-projectile-find-file)
 )
 
 (defun dotspacemacs/emacs-custom-settings ()
@@ -507,9 +587,19 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-backends
+   (quote
+    (company-lsp php-extras-company company-bbdb company-eclim company-semantic company-clang company-xcode company-cmake company-capf company-files
+                 (company-dabbrev-code company-keywords company-gtags company-etags)
+                 company-oddmuse company-dabbrev)))
+ '(custom-safe-themes
+   (quote
+    ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "0daf22a3438a9c0998c777a771f23435c12a1d8844969a28f75820dd71ff64e1" default)))
+ '(evil-want-Y-yank-to-eol nil)
+ '(global-linum-mode nil)
  '(package-selected-packages
    (quote
-    (go-impl go-gen-test go-fill-struct youdao-dictionary yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile toml-mode toc-org tagedit symon string-inflection stickyfunc-enhance srefactor sql-indent spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe rjsx-mode reveal-in-osx-finder restart-emacs rbenv ranger rake rainbow-mode rainbow-identifiers rainbow-delimiters racer pyvenv pytest pyenv-mode py-isort pug-mode protobuf-mode powershell popwin pippel pipenv pip-requirements phpunit phpcbf php-extras php-auto-yasnippets persp-mode pbcopy password-generator paradox ox-twbs ox-reveal ox-gfm overseer osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-mime org-journal org-download org-bullets org-brain open-junk-file nginx-mode nameless mwim mvn multi-term move-text modern-cpp-font-lock mmm-mode minitest meghanada maven-test-mode markdown-toc magithub magit-svn magit-gitflow magit-gh-pulls magic-latex-buffer macrostep lorem-ipsum livid-mode live-py-mode link-hint launchctl json-navigator js2-refactor js-doc indent-guide importmagic impatient-mode ibuffer-projectile hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-ctest helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag groovy-mode groovy-imports gradle-mode google-translate google-c-style golden-ratio godoctor go-tag go-rename go-guru go-eldoc gnuplot github-search github-modern-theme github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme dockerfile-mode docker disaster diminish diff-hl cython-mode counsel-projectile company-web company-tern company-statistics company-rtags company-quickhelp company-php company-lua company-lsp company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode clang-format chruby centered-cursor-mode cargo bundler browse-at-remote bazel-mode auto-yasnippet auto-highlight-symbol auto-compile auctex-latexmk aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
+    (overseer nameless flycheck-package package-lint company-lsp company-quickhelp youdao-dictionary names chinese-word-at-point yapfify yaml-mode xterm-color ws-butler winum web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill toml-mode toc-org tagedit stickyfunc-enhance srefactor spaceline powerline smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe reveal-in-osx-finder restart-emacs rbenv ranger rake rainbow-identifiers rainbow-delimiters racer pos-tip pyvenv pytest pyenv-mode py-isort pug-mode powershell popwin pip-requirements phpunit phpcbf php-auto-yasnippets persp-mode pcre2el pbcopy paradox spinner ox-twbs org-plus-contrib osx-trash osx-dictionary orgit org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-bullets open-junk-file nginx-mode neotree mwim multi-term move-text modern-cpp-font-lock minitest markdown-toc magit-gitflow magit-gh-pulls macrostep lua-mode lorem-ipsum livid-mode skewer-mode simple-httpd live-py-mode linum-relative link-hint launchctl js2-refactor multiple-cursors js-doc indent-guide ibuffer-projectile hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-gtags helm-gitignore request helm-flx helm-descbinds helm-css-scss helm-cscope xcscope helm-company helm-c-yasnippet helm-ag haml-mode gradle-mode google-translate golden-ratio go-guru go-eldoc gnuplot gitignore-mode github-search github-modern-theme github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gist gh marshal logito pcache ht gh-md fuzzy flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit with-editor smartparens iedit anzu evil goto-chg undo-tree highlight php-mode json-mode tablist magit-popup docker-tramp json-snatcher json-reformat lsp-mode web-completion-data dash-functional tern go-mode eclim company color-theme markdown-mode rust-mode inf-ruby bind-map yasnippet packed auctex anaconda-mode pythonic f dash s helm avy helm-core async auto-complete popup which-key sql-indent rainbow-mode php-extras ox-gfm mmm-mode js2-mode hydra ggtags evil-unimpaired git-commit ghub evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme dockerfile-mode docker disaster diminish diff-hl cython-mode cquery company-web company-tern company-statistics company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode clean-aindent-mode clang-format chruby cargo bundler bind-key bazel-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -517,3 +607,16 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(company-lsp company-quickhelp youdao-dictionary names chinese-word-at-point yapfify yaml-mode xterm-color ws-butler winum web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill toml-mode toc-org tagedit stickyfunc-enhance srefactor spaceline powerline smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe reveal-in-osx-finder restart-emacs rbenv ranger rake rainbow-identifiers rainbow-delimiters racer pos-tip pyvenv pytest pyenv-mode py-isort pug-mode powershell popwin pip-requirements phpunit phpcbf php-auto-yasnippets persp-mode pcre2el pbcopy paradox spinner ox-twbs org-plus-contrib osx-trash osx-dictionary orgit org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-bullets open-junk-file nginx-mode neotree mwim multi-term move-text modern-cpp-font-lock minitest markdown-toc magit-gitflow magit-gh-pulls macrostep lua-mode lorem-ipsum livid-mode skewer-mode simple-httpd live-py-mode linum-relative link-hint launchctl js2-refactor multiple-cursors js-doc indent-guide ibuffer-projectile hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-gtags helm-gitignore request helm-flx helm-descbinds helm-css-scss helm-cscope xcscope helm-company helm-c-yasnippet helm-ag haml-mode gradle-mode google-translate golden-ratio go-guru go-eldoc gnuplot gitignore-mode github-search github-modern-theme github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gist gh marshal logito pcache ht gh-md fuzzy flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit with-editor smartparens iedit anzu evil goto-chg undo-tree highlight php-mode json-mode tablist magit-popup docker-tramp json-snatcher json-reformat lsp-mode web-completion-data dash-functional tern go-mode eclim company color-theme markdown-mode rust-mode inf-ruby bind-map yasnippet packed auctex anaconda-mode pythonic f dash s helm avy helm-core async auto-complete popup which-key sql-indent rainbow-mode php-extras ox-gfm mmm-mode js2-mode hydra ggtags evil-unimpaired git-commit ghub evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump drupal-mode dracula-theme dockerfile-mode docker disaster diminish diff-hl cython-mode cquery company-web company-tern company-statistics company-go company-emacs-eclim company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-solarized color-identifiers-mode coffee-mode cmake-mode clean-aindent-mode clang-format chruby cargo bundler bind-key bazel-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
